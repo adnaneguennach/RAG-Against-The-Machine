@@ -1,0 +1,19 @@
+Adnane Guennach - Software Engineer & AI Specialist
+
+EDUCATION
+- State Engineering Degree in AI and Data Science. 1337 Coding School (42 Network) at UM6P in Rabat. (2025 - 2028).
+- Bachelor's Degree in Computer Engineering.
+- Specialized Technician Diploma in Full Stack Web Development from Cité des Métiers et des Compétences.
+- Diploma of General University Studies (DEUG) in English from Université Mohammed V.
+- High School Diplomas in Human Sciences (2020) and Physics (2018) at Lycée Abdelaziz Mezyan Belfqih.
+
+EXPERIENCE
+- Freelance Web Developer at Upwork (2024 - Present). Built custom web applications and integrated APIs for international clients.
+- Full-Stack Developer at IDEALTAX (2025 - 2026). Developed backend queue processing, integrated Retell AI call handling systems, and managed MongoDB/MySQL databases.
+- Sports Leader at Decathlon (2021 - 2022, 3 months). Managed sports equipment inventory and assisted customers.
+
+TECHNICAL SKILLS
+- Languages: Python, C, JavaScript, TypeScript, PHP, SQL.
+- Frameworks & Libraries: React, Next.js, Node.js, Tailwind CSS.
+- Tools & Infrastructure: Docker, AWS, Git, GitLab, BullMQ, RabbitMQ.
+- Languages spoken: Arabic (Native), English (Bilingual), French (Intermediate).
