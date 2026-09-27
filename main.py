@@ -1,6 +1,8 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from rank_bm25 import BM25Okapi
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from langchain_core.documents import Document
+from BM25Retriever.retrievers import BM25Retriever
 import sys 
 
 class RAG:
@@ -16,7 +18,7 @@ class RAG:
     
     def chunker(self):
         chunked_data = RecursiveCharacterTextSplitter(
-            separators = ["\n\n", "", "\n", " "],
+            # separators = ["\n\n", "", "\n", " "],
             chunk_size = 200,
             chunk_overlap = 20
         )
@@ -32,9 +34,16 @@ class RAG:
         top_result = bm25.get_top_n(tokenized_query, data, n=1)
 
         return top_result[0]
+    
+    def bm25_lgchain(self, query):
+        data = self.chunker()
+        # docs = [Document(page_content = chunk for chunk in chunks)]
+        retriever = BM25Retriever.from_texts(data, k=1)
+        result = retriever.invoke(query)
+        return result[0]
 
     def generate_answer(self, query):
-        context = self.bm25_handler(query)
+        context = self.bm25_lgchain(query)
         
         prompt = f"""Answer the question based strictly on the provided context.
 
@@ -59,6 +68,5 @@ class RAG:
         
         return final_answer
 
-# --- Execution ---
 resume_rag = RAG()
 resume_rag.generate_answer(sys.argv[1])
