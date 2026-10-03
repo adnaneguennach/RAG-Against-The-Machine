@@ -6,4 +6,6 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "langchain-text-splitters>=1.1.2",
+    "rank-bm25>=0.2.2",
+    "tqdm>=4.70.1",
 ]
