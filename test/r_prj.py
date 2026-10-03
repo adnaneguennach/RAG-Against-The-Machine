@@ -3,7 +3,7 @@ import json
 import pickle
 import re
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from tqdm import tqdm
 from rank_bm25 import BM25Okapi
 from pydantic import BaseModel
@@ -42,6 +42,7 @@ class RAGIndexer:
 
     def ingest_corpus(self) -> List:
         files = list(self.raw_data_path.rglob("*.py")) + list(self.raw_data_path.rglob("*.md"))
+        # print(files)
         master_chunks = []
 
         for file_path in files:
@@ -112,6 +113,51 @@ class RAGIndexer:
             json.dump(metadata_payload, f, indent=2)
         print(f"Metadata saved to {metadata_file}")
 
+
+class RAGRetriever:
+
+    def __init__(self, processed_dir: str = "data/processed"):
+        self.processed_dir = Path(processed_dir)
+        self.bm25 = self._load_bm25()
+        self.metadata = self._load_metadata()
+
+    def _load_bm25(self):
+        bm25_path = self.processed_dir / "bm25.pkl"
+        if not bm25_path.exists():
+            raise FileNotFoundError(f"Index not found at {bm25_path}. Run ingest first.")
+        
+        with open(bm25_path, "rb") as f:
+            return pickle.load(f)
+
+    def _load_metadata(self) -> List[Dict]:
+        metadata_path = self.processed_dir / "metadata.json"
+        if not metadata_path.exists():
+            raise FileNotFoundError(f"Metadata not found at {metadata_path}. Run ingest first.")
+        
+        with open(metadata_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def tokenize(self, text: str) -> List[str]:
+        return re.findall(r"\w+", text.lower())
+
+    def search(self, query: str, top_k: int = 5) -> List[Dict]:
+        tokenized_query = self.tokenize(query)
+
+        scores = self.bm25.get_scores(tokenized_query)
+        ranked_indices = sorted(enumerate(scores), key=lambda x: x[1], reverse=True)
+
+        top_results = []
+        for i in range(top_k):
+            chunk_index = ranked_indices[i][0]
+            score = ranked_indices[i][1]
+            
+            if score <= 0.0:
+                break
+                
+            winning_metadata = self.metadata[chunk_index]
+            top_results.append(winning_metadata)
+
+        return top_results
 indexer = RAGIndexer(raw_data_path="data/raw/vllm-0.10.1", max_chunk_size=2000)
 sources, raw_corpus = indexer.build_metadata_and_corpus()
 
