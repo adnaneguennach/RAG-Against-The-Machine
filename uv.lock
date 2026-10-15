@@ -2615,10 +2615,16 @@ version = "0.1.0"
 source = { virtual = "test" }
 dependencies = [
     { name = "langchain-text-splitters" },
+    { name = "rank-bm25" },
+    { name = "tqdm" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "langchain-text-splitters", specifier = ">=1.1.2" }]
+requires-dist = [
+    { name = "langchain-text-splitters", specifier = ">=1.1.2" },
+    { name = "rank-bm25", specifier = ">=0.2.2" },
+    { name = "tqdm", specifier = ">=4.70.1" },
+]
 
 [[package]]
 name = "tokenizers"

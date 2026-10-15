@@ -1,14 +1,15 @@
 from pathlib import Path
-from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 vllm_path = Path("vllm-0.10.1")
 rec_load = list(vllm_path.rglob("*.py"))
 
-chunked_data = RecursiveCharacterTextSplitter.from_language(
+chunked_data = RecursiveCharacterTextSplitter(
     language=Language.PYTHON,
-    chunk_size=2000,
-    chunk_overlap=200,
-    add_start_index=True
+    chunk_size = 2000,
+    chunk_overlap = 50,
+    add_start_index = True
 )
 
 def retrieve_data(path):

@@ -17,9 +17,9 @@ class RAG:
             self.content = f.read()
     
     def chunker(self):
-        chunked_data = RecursiveCharacterTextSplitter(
-            # separators = ["\n\n", "", "\n", " "],
-            chunk_size = 200,
+        chunked_data = RecursiveCharacterTextSplitter.from_language(
+            language = language.MARKDOWN,
+            chunk_size = 2000,
             chunk_overlap = 20
         )
         self.retrieve_data("resume.txt")
@@ -34,13 +34,13 @@ class RAG:
         top_result = bm25.get_top_n(tokenized_query, data, n=1)
 
         return top_result[0]
-    
-    def bm25_lgchain(self, query):
-        data = self.chunker()
-        # docs = [Document(page_content = chunk for chunk in chunks)]
-        retriever = BM25Retriever.from_texts(data, k=1)
-        result = retriever.invoke(query)
-        return result[0]
+     
+    # def bm25_lgchain(self, query):
+    #     data = self.chunker()
+    #     # docs = [Document(page_content = chunk for chunk in chunks)]
+    #     retriever = BM25Retriever.from_texts(data, k=1)
+    #     result = retriever.invoke(query)
+    #     return result[0]
 
     def generate_answer(self, query):
         context = self.bm25_lgchain(query)
