@@ -1,5 +1,9 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 from pathlib import Path
+from models import MinimalSource
+import bm25s
+import json 
+from tqdm import tqdm
 
 class RAG_Indexer():
     def __init__(self, path = "data/vllm-0.10.1", max_chunk_size = 2000):
@@ -24,7 +28,7 @@ class RAG_Indexer():
 
     #function that gets us all the files, then split them to chunks of documents, contains content:
     #format of Document : Document(metadata={'file_path': "path", start_index = 0}, page_content = "lorem ipsum")
-    
+
     def ingest_corpus(self):
         files = list(self.path.rglob("*.py")) + list(self.path.rglob("*.md")) + list(self.path.rglob("*.txt"))
         master_chunks = []
@@ -35,18 +39,56 @@ class RAG_Indexer():
             if file.suffix == ".py":
                 doc = self.python_splitter.create_documents(
                     texts = [content],
-                    metadatas = [{"file_path ": str(file)}]
+                    metadatas = [{"file_path": str(file)}]
                 )
             elif file.suffix in [".md", ".txt"] : 
                 doc = self.markdown_splitter.create_documents(
                     texts = [content],
                     metadatas = [{"file_path" : str(file)}]
                 )
-            master_chunks.append(doc)
-        return master_chunks[0]
+            master_chunks.extend(doc)
+        return master_chunks
+
+
+    def index_corpus(self):
+        raw_content = []
+        min_list = []
+        
+        for chunk in self.ingest_corpus():
+            start_idx = chunk.metadata["start_index"]
+            last_idx = start_idx + len(chunk.page_content)
+
+            min_obj = MinimalSource(
+                file_path = chunk.metadata["file_path"],
+                first_character_index = start_idx,
+                last_character_index = last_idx
+            )
+
+            raw_content.append(chunk.page_content)
+            min_list.append(min_obj)
+        return raw_content, min_list
+
+    def build_save_idx(self, source, min_list, output_dir = "data/processed"):
+        output_path = Path(output_dir)
+
+        corpus_tokens = bm25s.tokenize(source)
+        retriever = bm25s.BM25(corpus = source)
+        retriever.index(corpus_tokens)
+        retriever.save(str(output_path))
+
+        metadata_file = output_path / "metadata.json"
+        metadata_payload = []
+
+        for s in tqdm(min_list):
+            metadata_payload.append(s.model_dump())
+            with open(metadata_file, "w") as f:
+                json.dump(metadata_payload, f, indent=2, ensure_ascii=False)
+
+
 
     
 
     
 obj = RAG_Indexer()
-print(obj.ingest_corpus())
+s, m = obj.index_corpus()
+obj.build_save_idx(s,m)
