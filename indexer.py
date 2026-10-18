@@ -5,7 +5,7 @@ import bm25s
 import json 
 from tqdm import tqdm
 
-class RAG_Indexer():
+class RAG_Indexer:
     def __init__(self, path = "data/vllm-0.10.1", max_chunk_size = 2000):
         self.python_splitter = RecursiveCharacterTextSplitter.from_language(
             language = Language.PYTHON,
@@ -89,6 +89,6 @@ class RAG_Indexer():
     
 
     
-obj = RAG_Indexer()
-s, m = obj.index_corpus()
-obj.build_save_idx(s,m)
+# obj = RAG_Indexer()
+# s, m = obj.index_corpus()
+# obj.build_save_idx(s,m)
