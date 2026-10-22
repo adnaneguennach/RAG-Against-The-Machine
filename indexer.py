@@ -6,17 +6,17 @@ import json
 from tqdm import tqdm
 
 class RAG_Indexer:
-    def __init__(self, path = "data/vllm-0.10.1", max_chunk_size = 2000):
+    def __init__(self, path = "data/raw/vllm-0.10.1", max_chunk_size = 2000):
         self.python_splitter = RecursiveCharacterTextSplitter.from_language(
             language = Language.PYTHON,
             chunk_size = max_chunk_size, 
-            chunk_overlap = 50, 
+            chunk_overlap = 100, 
             add_start_index = True
         )
         self.markdown_splitter = RecursiveCharacterTextSplitter.from_language(
             language = Language.MARKDOWN,
             chunk_size = max_chunk_size,
-            chunk_overlap = 50,
+            chunk_overlap = 100,
             add_start_index = True
         )
         self.path = Path(path)
@@ -33,7 +33,7 @@ class RAG_Indexer:
         files = list(self.path.rglob("*.py")) + list(self.path.rglob("*.md")) + list(self.path.rglob("*.txt"))
         master_chunks = []
         #we using append instead of extend, bcs extend take an iterable loops on it and adds, append take it and add it directly 
-        # extend = [1,2,3,[4,5]] | append =  [1,2,3,4,5]
+        # append = [1,2,3,[4,5]] | extend =  [1,2,3,4,5]
         for file in files:
             content = self.file_reader(file)
             if file.suffix == ".py":
@@ -47,6 +47,7 @@ class RAG_Indexer:
                     metadatas = [{"file_path" : str(file)}]
                 )
             master_chunks.extend(doc)
+  
         return master_chunks
 
 
@@ -81,14 +82,13 @@ class RAG_Indexer:
 
         for s in tqdm(min_list):
             metadata_payload.append(s.model_dump())
-            with open(metadata_file, "w") as f:
-                json.dump(metadata_payload, f, indent=2, ensure_ascii=False)
+
+        with open(metadata_file, "w") as f:
+            json.dump(metadata_payload, f, indent=2, ensure_ascii=False)
 
 
 
-    
-
-    
-# obj = RAG_Indexer()
-# s, m = obj.index_corpus()
-# obj.build_save_idx(s,m)
+# x = RAG_Indexer()
+# x.ingest_corpus()
+# s, m = x.index_corpus()
+# x.build_save_idx(s, m)
