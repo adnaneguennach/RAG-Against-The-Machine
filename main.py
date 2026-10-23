@@ -17,12 +17,18 @@ class RAG:
     def search(self, query, k):
         search_obj = RAG_search(k = k)
         x = search_obj.search(query = query)
-        print(x)
+        # print(x)
 
-    
+    def search_dataset(self,dataset_path, k, save_directory):
+        search_obj = RAG_search(k = k)
+        search_obj.search_dataset(dataset_path, save_directory)
+
+    # def answer(self, query):
 
 
 
-fire.Fire(RAG)
+
+
+fire.Fire(RAG)  
 
 

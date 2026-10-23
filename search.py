@@ -43,12 +43,12 @@ class RAG_search:
         return min_lst
 
     
-    def search_dataset(self, path):
+    def search_dataset(self, path, save_directory):
         bm25 = bm25s.BM25.load("data/processed", load_corpus=False)
         
-        unanswered_question = Path("datasets_public/public/UnansweredQuestions")
+        unanswered_question = Path(path)
 
-        with open(unanswered_question / "dataset_code_public.json", "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8") as f:
             queries = json.load(f)
 
         with open("data/processed/metadata.json", "r", encoding="utf-8") as f:
@@ -56,9 +56,6 @@ class RAG_search:
 
         search_questions = []
         for q in queries["rag_questions"]:
-            # search_questions.append(self.search(q["question"], q["question_id"]))
-            # self.search()
-            # print(q["question_id"])
             search_questions.append(
                 {
                     "question_id" : q["question_id"],
@@ -67,19 +64,18 @@ class RAG_search:
                 }
             )
 
-
         obj = StudentSearchResults(
             search_results  = search_questions, 
             k = self.config_k
         )
-        with open("data/output/test.json", "w") as f:
+        sv_dirc = Path(save_directory)
+        # print(obj.model_dump())
+        # exit()
+            
+        with open(sv_dirc / "test.json", "w") as f:
             json.dump(obj.model_dump(), f, indent = 4)
                 
         
- 
 
-
-x = RAG_search(5)
-x.search_dataset("data/output/test.json")
 # print(x.search("What activation formats does the fused batched MoE layer return in vLLM?", "dsds"))
 
